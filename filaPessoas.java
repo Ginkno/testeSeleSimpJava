@@ -1,8 +1,16 @@
+@Entity
+@Table(name = "pessoas")
 public class Pessoa {
-  private int id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   private String nome;
-  private int idade;
-  private int posicaoFila;
+
+  private Integer idade;
+
+  @Column(name = "posicao_fila")
+  private Integer posicaoFila;
   
   public Pessoa() {}
   
