@@ -4,18 +4,34 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 public class PessoaDAO extends JpaRepository<Pessoa, Long> {
+  @Autowired
+  private SessionFactory sessionFactory;
+
+  public List<Pessoa> listar() {
+      Session session = sessionFactory.getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<Pessoa> cq = cb.createQuery(Pessoa.class);
+      Root<Pessoa> root = cq.from(Pessoa.class);
+      cq.select(root);
+      Query query = session.createQuery(cq);
+      return query.getResultList();
+  }
+
+  public Pessoa buscar(Long id) {
+      Session session = sessionFactory.getCurrentSession();
+      return session.get(Pessoa.class, id);
+  }
+
   public void salvar(Pessoa pessoa) {
-    Transaction transaction = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      transaction = session.beginTransaction();
-      session.save(pessoa);
-      transaction.commit();
-    } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback(); 
-      }
-      e.printStackTrace();
-    }
+      Session session = sessionFactory.getCurrentSession();
+      session.saveOrUpdate(pessoa);
+      enviarSms(pessoa.getNome()); // chama o método para enviar o SMS
+  }
+
+  public void excluir(Long id) {
+      Session session = sessionFactory.getCurrentSession();
+      Pessoa pessoa = session.byId(Pessoa.class).load(id);
+      session.delete(pessoa);
   }
   
   private void enviarSms(Pessoa pessoa) throws Exception {
@@ -26,67 +42,5 @@ public class PessoaDAO extends JpaRepository<Pessoa, Long> {
     TelesignClient client = new TelesignClient(customerId, apiKey);
     MessagingClient messagingClient = new MessagingClient(client);
     messagingClient.message(phoneNumber, message, "ARN");
-  }
-  
-  public void atualizar(Pessoa pessoa) {
-    Transaction transaction = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      transaction = session.beginTransaction();
-      session.save(pessoa);
-      transaction.commit();
-    } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback(); 
-      }
-      e.printStackTrace();
-    }
-  }
-  
-  public void deletar(int id) {
-    Transaction transaction = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      transaction = session.beginTransaction();
-      Pessoa pessoa = session.get(Pessoa.class, id);
-      if (pessoa != null) {
-        session.delete(pessoa);
-      }
-      transaction.commit();
-    } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback();
-      }
-      e.printStackTrace();
-    }
-  }
-  
-  public Pessoa buscaPorId(int id) {
-    Transaction transaction = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      transaction = session.beginTransaction();
-      pessoa = session.get(Pessoa.class, id);
-      transaction.commit();
-    } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback();
-      }
-      e.printStackTree();
-    }
-    return pessoa;
-  }
-  
-  public List<Pessoa> buscarTodos() {
-    Transaction transaction = null;
-    List<Pessoa> pessoas = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      transaction = session.beginTransaction();
-      pessoas = session.createQuery("FROM Pessoa", Pessoa.class).list();
-      transaction.commit();
-    } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback();
-      }
-      e.printStackTree();
-    }
-    return pessoas;
   }
 }
