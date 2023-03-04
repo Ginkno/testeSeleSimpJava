@@ -1,8 +1,9 @@
+@Repository
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-public class PessoaDAO {
+public class PessoaDAO extends JpaRepository<Pessoa, Long> {
   public void salvar(Pessoa pessoa) {
     Transaction transaction = null;
     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
