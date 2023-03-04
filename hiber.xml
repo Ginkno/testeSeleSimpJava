@@ -6,7 +6,7 @@
     <property name = "hibernate.connection.password"> senha </property>
     
     <!-- mapeando a classe -->
-    <mapping class = "filaPessoas.java" />
+    <mapping class = "filaPessoas" />
     
     <property name = "hibernate.dialect"> org.hibernate.dialect.MySQLDialect </property>
     <property name = "hibernate.show_sql"> true </property>
