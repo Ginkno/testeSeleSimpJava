@@ -2,51 +2,32 @@
 @RequestMapping("/pessoa")
 public class PessoaController {
   
-  
   @Autowired
   private PessoaDAO pessoaDAO;
-  
-  @GetMapping
-  public List<Pessoa> buscarTodas() {
-    return pessoaDAO.buscarTodos();
+
+  @GetMapping("/pessoas")
+  public List<Pessoa> listar() {
+      return pessoaDAO.listar();
   }
-  
-  @PostMapping
-  public ResponseEntity<Pessoa> adicionarPessoa(@RequestBody Pessoa pessoa) {
-    pessoaDAO.salvar(pessoa);
-    return ResponseEntity.ok().body(pessoa);
+
+  @GetMapping("/pessoas/{id}")
+  public Pessoa buscar(@PathVariable Long id) {
+      return pessoaDAO.buscar(id);
   }
-  
-  @GetMapping{"/{id}"}
-  public ResponseEntity<Pessoa> buscarPorId(@PathVariable Long id) {
-    Pessoa pessoa = pessoaDAO.buscarPorId(id);
-    if (pessoa == null) {
-      return ResponseEntity.notFound().build();
-    }
-    return ResponseEntity.ok().body(pessoa);
+
+  @PostMapping("/pessoas")
+  public void salvar(@RequestBody Pessoa pessoa) {
+      pessoaDAO.salvar(pessoa);
   }
-  
-  @PutMapping("/{id}")
-  public ResponseEntity<Pessoa> atualizarPessoa(@PathVariable Long id, @RequestBody Pessoa pessoaAtualizada) {
-    Pessoa pessoa = pessoaDAO.buscarPorId(id);
-    if (pessoa == null) {
-      return ResponseEntity.notFound().build();
-    }
-    
-    pessoa.setNome(pessoaAtualizada.getNome());
-    pessoa.setIdade(pessoaAtualizada.getIdade());
-    pessoa.setPosicaoFila(pessoaAtualizada.getPosicaoFila());
-    pessoaDAO.atualizar(pessoa);
-    return ResponseEntity.ok().body(pessoa);
+
+  @PutMapping("/pessoas/{id}")
+  public void atualizar(@PathVariable Long id, @RequestBody Pessoa pessoa) {
+      pessoa.setId(id);
+      pessoaDAO.salvar(pessoa);
   }
-  
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletarPessoa(@PathVariable Long id) {
-    Pessoa pessoa = pessoaDAO.buscarPorId(id);
-    if (pessoa == null) {
-      return ResponseEntity.notFound().build();
-    }
-    pessoaDAO.deletar(pessoa);
-    return ResponseEntity.noContent().build();
+
+  @DeleteMapping("/pessoas/{id}")
+  public void excluir(@PathVariable Long id) {
+      pessoaDAO.excluir(id);
   }
 }
